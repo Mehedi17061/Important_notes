@@ -77,14 +77,14 @@ function custom_order_form_shortcode1() {
     return ob_get_clean();
 }
 
-add_action( 'init', 'process_custom_order_form1' );
+  add_action( 'init', 'process_custom_order_form1' );
 
-function process_custom_order_form1() {
-    if( isset( $_POST['pay_bill'] ) ) {
-        $email = sanitize_email( $_POST['email'] );
-        $purpose = sanitize_text_field( $_POST['purpose'] );
-        $amount = floatval( $_POST['amount'] );
-        $advance_payment_duration = sanitize_text_field( $_POST['advance_payment'] );
+   function process_custom_order_form1() {
+      if( isset( $_POST['pay_bill'] ) ) {
+           $email = sanitize_email( $_POST['email'] );
+         $purpose = sanitize_text_field( $_POST['purpose'] );
+          $amount = floatval( $_POST['amount'] );
+           $advance_payment_duration = sanitize_text_field( $_POST['advance_payment'] );
 
         // Create a new WooCommerce order
         $order = wc_create_order();
