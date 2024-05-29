@@ -1,0 +1,28 @@
+# Buy Now Button Add in Single Product beside the Add To cart
+// Add 'Buy Now' button next to 'Add to Cart' button on single product pages
+add_action('woocommerce_after_add_to_cart_button', 'add_buy_now_button');
+
+function add_buy_now_button() {
+    global $product;
+    $product_id = $product->get_id();
+    $checkout_url = wc_get_checkout_url();
+    echo '<button type="button" class="buy-now-button button alt" data-product-id="' . esc_attr($product_id) . '">' . __('Buy Now', 'woocommerce') . '</button>';
+    ?>
+    <script type="text/javascript">
+        jQuery(document).ready(function($) {
+            $('.buy-now-button').on('click', function() {
+                var product_id = $(this).data('product-id');
+                var checkout_url = '<?php echo esc_url($checkout_url); ?>';
+                // Add product to cart via AJAX
+                $.post(wc_add_to_cart_params.ajax_url, {
+                    action: 'woocommerce_add_to_cart',
+                    product_id: product_id,
+                }, function() {
+                    // Redirect to checkout
+                    window.location.href = checkout_url;
+                });
+            });
+        });
+    </script>
+    <?php
+}
