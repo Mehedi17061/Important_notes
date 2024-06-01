@@ -126,3 +126,116 @@ $order = wc_get_order( $order_id );
 $order->update_status( 'completed' );
 }
 
+# create login and login registration by elementor 
+
+
+// Handle user registration via Elementor form
+add_action('elementor_pro/forms/new_record', function ($record, $handler) {
+    $form_name = $record->get_form_settings('form_name');
+
+    if ('user_registration' !== $form_name) {
+        return;
+    }
+
+    $raw_fields = $record->get('fields');
+    $fields = [];
+
+    foreach ($raw_fields as $id => $field) {
+        $fields[$id] = $field['value'];
+    }
+
+    $username = sanitize_user($fields['username']);
+    $email = sanitize_email($fields['email']);
+    $password = sanitize_text_field($fields['password']);
+
+    $userdata = array(
+        'user_login' => $username,
+        'user_email' => $email,
+        'user_pass'  => $password,
+    );
+
+    $user_id = wp_insert_user($userdata);
+
+    if (is_wp_error($user_id)) {
+        $handler->add_error_message($user_id->get_error_message());
+        return;
+    }
+
+    $handler->add_success_message('Registration successful!');
+}, 10, 2);
+
+// Handle user login via Elementor form
+add_action('elementor_pro/forms/new_record', function ($record, $handler) {
+    $form_name = $record->get_form_settings('form_name');
+
+    if ('user_login' !== $form_name) {
+        return;
+    }
+
+    $raw_fields = $record->get('fields');
+    $fields = [];
+
+    foreach ($raw_fields as $id => $field) {
+        $fields[$id] = $field['value'];
+    }
+
+    $username = sanitize_user($fields['username']);
+    $password = sanitize_text_field($fields['password']);
+
+    $creds = array(
+        'user_login'    => $username,
+        'user_password' => $password,
+        'remember'      => true,
+    );
+
+    $user = wp_signon($creds, false);
+
+    if (is_wp_error($user)) {
+        $handler->add_error_message($user->get_error_message());
+        return;
+    }
+
+    wp_set_current_user($user->ID);
+    wp_set_auth_cookie($user->ID);
+    $handler->add_success_message('Login successful!');
+}, 10, 2);
+
+// Handle password reset via Elementor form
+add_action('elementor_pro/forms/new_record', function ($record, $handler) {
+    $form_name = $record->get_form_settings('form_name');
+
+    if ('user_forgot_password' !== $form_name) {
+        return;
+    }
+
+    $raw_fields = $record->get('fields');
+    $fields = [];
+
+    foreach ($raw_fields as $id => $field) {
+        $fields[$id] = $field['value'];
+    }
+
+    $email = sanitize_email($fields['email']);
+
+    if (!email_exists($email)) {
+        $handler->add_error_message('No user found with this email address.');
+        return;
+    }
+
+    $user = get_user_by('email', $email);
+    $reset_key = get_password_reset_key($user);
+
+    if (is_wp_error($reset_key)) {
+        $handler->add_error_message('Unable to generate reset link.');
+        return;
+    }
+
+    $reset_url = network_site_url("wp-login.php?action=rp&key=$reset_key&login=" . rawurlencode($user->user_login), 'login');
+
+    // Send the reset email
+    $message = sprintf('Click the following link to reset your password: %s', $reset_url);
+    wp_mail($email, 'Password Reset Request', $message);
+
+    $handler->add_success_message('Password reset email sent.');
+}, 10, 2);
+
