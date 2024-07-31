@@ -1,3 +1,15 @@
+#Elementor Accordion Closed by Default
+
+<script>
+jQuery(document).ready(function($) {
+var delay = 100; setTimeout(function() {
+$('.elementor-tab-title').removeClass('elementor-active');
+ $('.elementor-tab-content').css('display', 'none'); }, delay);
+});
+</script>
+Step 2: Just above your accordion widget, place an “HTML Widget” from the elements panel & paste the above-provided Javascript code inside the HTML Code.
+
+
 # Important_notes
 # Add Refunds Return And Privacy Policy :- Code
 // Add a checkbox to the WooCommerce checkout page
