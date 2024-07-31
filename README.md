@@ -1,4 +1,4 @@
-#Elementor Accordion Closed by Default
+# Elementor Accordion Closed by Default
 
 <script>
 jQuery(document).ready(function($) {
